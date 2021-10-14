@@ -1,16 +1,23 @@
-package controlPackage;
+package tests;
 
 import java.lang.reflect.InvocationTargetException;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.List;
+import java.util.Properties;
 
-public class MovieRating {
+import controlPackage.Controller;
+
+public class ShoppingTrend {
 
 	public void initialize()
 	{
-		_c = new Controller();
+		String fileName = "config/shoppingTrendConfig.conf";	
 		try {
-			_c.initialize(this.getClass().getDeclaredMethod("methodMap", null), this.getClass().getDeclaredMethod("methodReduce", null));
+			_c.initialize(this.getClass().getDeclaredMethod("methodMap", null), this.getClass().getDeclaredMethod("methodReduce", null), fileName);
 		} catch (NoSuchMethodException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -25,13 +32,14 @@ public class MovieRating {
 	public void methodMap(String key, String value, Method emit_intermediate)
 	{
 		System.out.println("Map in Controller");
-		String[] movies = value.split(";");
-		for(String movie: movies) {
-			String[] parts = movie.split(":");
-			String movieName = parts[0];
-			Integer rating = Integer.valueOf(parts[1]);
+		String[] entries = value.split(";");
+		for(String entry: entries) {
+			String[] parts = entry.split(",");
+			Integer id = Integer.valueOf(parts[0]);
+			Double cost = Double.valueOf(parts[1]);
+			Integer quantity = Integer.valueOf(parts[2]);
 			try {
-				emit_intermediate.invoke(movieName, rating);
+				emit_intermediate.invoke(id, cost*quantity);
 			} catch (IllegalAccessException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -48,14 +56,12 @@ public class MovieRating {
 	public void methodReduce(String key, List<String> values, Method emit_final)
 	{
 		System.out.println("Reduce in Controller");
-		Integer count = 0;
-		Integer totalRating = 0;
+		Double result = 0.0;
 		for(String v: values) {
-	           totalRating += Integer.valueOf(v);
-	           ++count;
+	           result += Double.valueOf(v);
 		}
 		try {
-			emit_final.invoke(key, totalRating/count);
+			emit_final.invoke(key, result);
 		} catch (IllegalAccessException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

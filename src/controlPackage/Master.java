@@ -6,7 +6,7 @@ import workerPackage.WorkerReduce;
 
 public class Master {
 
-	public void initialize(Method customMap, Method customReduce)
+	public void initialize(Method customMap, Method customReduce, String configFile)
 	{
 		//System.out.println("reached master");
 		_mapperNode = new WorkerMapper();

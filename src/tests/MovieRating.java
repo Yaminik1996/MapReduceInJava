@@ -1,16 +1,19 @@
-package controlPackage;
+package tests;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;
 
-public class WordCount {
+import controlPackage.Controller;
+
+public class MovieRating {
 
 	public void initialize()
 	{
+		String fileName = "config/movieRatingConfig.conf";
 		_c = new Controller();
 		try {
-			_c.initialize(this.getClass().getDeclaredMethod("methodMap", null), this.getClass().getDeclaredMethod("methodReduce", null));
+			_c.initialize(this.getClass().getDeclaredMethod("methodMap", null), this.getClass().getDeclaredMethod("methodReduce", null), fileName);
 		} catch (NoSuchMethodException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -25,11 +28,13 @@ public class WordCount {
 	public void methodMap(String key, String value, Method emit_intermediate)
 	{
 		System.out.println("Map in Controller");
-		value = cleanFile(value);
-		String[] words = value.split(" ");
-		for(String word: words) {
+		String[] movies = value.split(";");
+		for(String movie: movies) {
+			String[] parts = movie.split(":");
+			String movieName = parts[0];
+			Integer rating = Integer.valueOf(parts[1]);
 			try {
-				emit_intermediate.invoke(word, 1);
+				emit_intermediate.invoke(movieName, rating);
 			} catch (IllegalAccessException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -41,18 +46,19 @@ public class WordCount {
 				e.printStackTrace();
 			}
 		}
-		
 	}
 
 	public void methodReduce(String key, List<String> values, Method emit_final)
 	{
 		System.out.println("Reduce in Controller");
-		Integer result = 0;
+		Integer count = 0;
+		Integer totalRating = 0;
 		for(String v: values) {
-	           result += Integer.valueOf(v);
+	           totalRating += Integer.valueOf(v);
+	           ++count;
 		}
 		try {
-			emit_final.invoke(key, result);
+			emit_final.invoke(key, totalRating/count);
 		} catch (IllegalAccessException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -63,10 +69,6 @@ public class WordCount {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-	}
-	
-	private String cleanFile(String value) {
-		return value.replaceAll("\\p{Punct}"," ");
 	}
 	
 	Controller _c;

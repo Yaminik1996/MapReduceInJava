@@ -1,12 +1,17 @@
 package controlPackage;
+
 import java.lang.reflect.Method;
+
+import tests.MovieRating;
+import tests.ShoppingTrend;
+import tests.WordCount;
 
 public class Controller {
 
-	public void initialize(Method customMap, Method customReduce)
+	public void initialize(Method customMap, Method customReduce, String configFile)
 	{
 		_masterNode = new Master();
-		_masterNode.initialize(customMap, customReduce);
+		_masterNode.initialize(customMap, customReduce, configFile);
 	}
 	
 	public void perform(Object obj)
