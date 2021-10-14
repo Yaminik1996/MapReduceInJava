@@ -15,12 +15,17 @@ public class Controller {
 	}
 	
 	public static void main(String[] args) {
-		// TODO Auto-generated method stub
 		System.out.println("From Controller-main");
-		test = new Test();
-		test.initialize();
+		wordCount = new WordCount();
+		wordCount.initialize();
+		shoppingTrend = new ShoppingTrend();
+		shoppingTrend.initialize();
+		movieRating = new MovieRating();
+		movieRating.initialize();
 	}
 	
 	Master _masterNode;
-	static Test test;
+	static WordCount wordCount;
+	static ShoppingTrend shoppingTrend;
+	static MovieRating movieRating;
 }
