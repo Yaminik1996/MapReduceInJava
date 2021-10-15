@@ -8,9 +8,10 @@ public class Master {
 
 	public void initialize(Method customMap, Method customReduce, String configFile)
 	{
-		//System.out.println("reached master");
+		System.out.println("reached master");
+		System.out.println(configFile);
 		_mapperNode = new WorkerMapper();
-		_mapperNode.initialize(customMap);
+		_mapperNode.initialize(customMap,configFile);
 		_reducerNode = new WorkerReduce();
 		_reducerNode.initialize(customReduce);
 	}

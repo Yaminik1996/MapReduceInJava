@@ -10,6 +10,7 @@ public class Controller {
 
 	public void initialize(Method customMap, Method customReduce, String configFile)
 	{
+		System.out.println(configFile);
 		_masterNode = new Master();
 		_masterNode.initialize(customMap, customReduce, configFile);
 	}
@@ -23,10 +24,10 @@ public class Controller {
 		System.out.println("From Controller-main");
 		wordCount = new WordCount();
 		wordCount.initialize();
-		shoppingTrend = new ShoppingTrend();
-		shoppingTrend.initialize();
-		movieRating = new MovieRating();
-		movieRating.initialize();
+		// shoppingTrend = new ShoppingTrend();
+		// shoppingTrend.initialize();
+		// movieRating = new MovieRating();
+		// movieRating.initialize();
 	}
 	
 	Master _masterNode;
