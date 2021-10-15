@@ -13,6 +13,7 @@ import java.util.Properties;
 
 import controlPackage.Controller;
 import workerPackage.WorkerMapper;
+import workerPackage.WorkerReduce;
 
 public class WordCount {
 
@@ -67,15 +68,17 @@ public class WordCount {
 	           result += Integer.valueOf(v);
 		}
 		try {
-			emit_final.invoke(key, result);
+			emit_final.invoke(_reduce, key, result);
+			try(OutputStream outputStream = new FileOutputStream("final.properties")){
+				WorkerReduce.reduceProp.store(outputStream,null);
+			} catch (IOException e) {
+				e.printStackTrace();
+			} 
 		} catch (IllegalAccessException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IllegalArgumentException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (InvocationTargetException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -86,4 +89,5 @@ public class WordCount {
 	
 	Controller _c;
 	WorkerMapper _map = new WorkerMapper();
+	WorkerReduce _reduce = new WorkerReduce();
 }

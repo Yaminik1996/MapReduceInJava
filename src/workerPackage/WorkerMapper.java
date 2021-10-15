@@ -3,11 +3,9 @@ package workerPackage;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
-
-import javax.swing.plaf.basic.BasicInternalFrameTitlePane.SystemMenuBar;
-
 import java.io.*;
 
+//This is our Mapper Class
 public class WorkerMapper {
 	public void initialize(Method customMap, String configFile)
 	{
@@ -29,8 +27,19 @@ public class WorkerMapper {
 		inputFile = prop.getProperty("input");
 	
 	}
+	//Emit intermediate function, which saves intermediate key value pairs to a Properties variable mapProp
 	public void emitIntermediate(String key, String value){
-		mapProp.put(key,value);
+		
+		if(mapProp.getProperty(key) == null)
+		{
+			mapProp.put(key,value);
+		}
+		else{
+			String new_value = mapProp.getProperty(key).concat(",");
+			new_value = new_value.concat(value);
+			mapProp.put(key,new_value);
+		}
+		
 
 	}
 	public static void printProperties(Properties prop)
