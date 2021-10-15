@@ -15,16 +15,17 @@ public class WordCount {
 
 	public void initialize()
 	{
+		System.out.println("Word count");
 		Properties prop = new Properties();
-		String fileName = "config/wordCountConfig.conf";
+		String fileName = "tests/config/wordCountConfig.config";
 		_c = new Controller();
+		Class[] mapArgs = {String.class, String.class, Method.class};
+		Class[] reduceArgs = {String.class, List.class, Method.class};
 		try {
-			_c.initialize(this.getClass().getDeclaredMethod("methodMap", null), this.getClass().getDeclaredMethod("methodReduce", null), fileName);
+			_c.initialize(this.getClass().getDeclaredMethod("methodMap", mapArgs ), this.getClass().getDeclaredMethod("methodReduce", reduceArgs), fileName);
 		} catch (NoSuchMethodException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (SecurityException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		_c.perform(this);
@@ -34,24 +35,22 @@ public class WordCount {
 	public void methodMap(String key, String value, Method emit_intermediate)
 	{
 		System.out.println("Map in Controller");
+		System.out.println(emit_intermediate);
 		value = cleanFile(value);
 		String[] words = value.split(" ");
 		for(String word: words) {
 			try {
-				emit_intermediate.invoke(word, 1);
+				emit_intermediate.invoke(word, "1");
 			} catch (IllegalAccessException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} catch (IllegalArgumentException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} catch (InvocationTargetException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
 		
-	}
+	}	
 
 	public void methodReduce(String key, List<String> values, Method emit_final)
 	{
