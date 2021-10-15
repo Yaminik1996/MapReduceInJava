@@ -3,13 +3,15 @@ package workerPackage;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
+
+import javax.swing.plaf.basic.BasicInternalFrameTitlePane.SystemMenuBar;
+
 import java.io.*;
 
 public class WorkerMapper {
 	public void initialize(Method customMap, String configFile)
 	{
 		System.out.println("reached mapper");
-		System.out.println(customMap);
 		_mapFunction = customMap;
 		System.out.println(configFile);
 
@@ -28,15 +30,17 @@ public class WorkerMapper {
 	
 	}
 	public void emitIntermediate(String key, String value){
-		mapDict.put(key,value);
-		System.out.println("key");
-		System.out.println(key);
-		System.out.println("value");
-		System.out.println(value);
-
+		mapProp.put(key,value);
+		System.out.println(mapProp.propertyNames());
 
 	}
-	public void perform()
+	public static void printProperties(Properties prop)
+    {	
+        for (Object key: prop.keySet()) {
+            System.out.println(key + ": " + prop.getProperty(key.toString()));
+        }
+    }
+	public void perform(Object obj)
 	{
 		System.out.println("Worker Mapper called");
 		try {
@@ -54,14 +58,24 @@ public class WorkerMapper {
 			try {
 				while ((st = br.readLine()) != null){
 					try {
-						_mapFunction.invoke(String.valueOf(Counter), st, this.getClass().getDeclaredMethod("emitIntermediate", emitIntermediateArgs));
+						_mapFunction.invoke(obj,String.valueOf(Counter), st, this.getClass().getDeclaredMethod("emitIntermediate", emitIntermediateArgs));
 					} catch (NoSuchMethodException e) {
 						e.printStackTrace();
 					} catch (SecurityException e) {
 						e.printStackTrace();
 					}
-	   }
-			} catch (IOException e) {
+					System.out.println(mapProp.propertyNames());
+
+	   			}
+
+				// try(OutputStream outputStream = new FileOutputStream("intermediate.properties")){
+				// 	mapProp.store(outputStream,null);
+				// } catch (IOException e) {
+				// 	e.printStackTrace();
+				// } 
+				
+			} 
+			catch (IOException e) {
 				e.printStackTrace();
 			}
 			
@@ -76,10 +90,9 @@ public class WorkerMapper {
 	}
 	
 	Method _mapFunction;
-	private Enumeration en;
 	String numMappers;
 	String numReducers;
 	String inputFile;
-	Hashtable<String, String> mapDict = new Hashtable<String, String>();
+	Properties mapProp = new Properties();
 	
 }

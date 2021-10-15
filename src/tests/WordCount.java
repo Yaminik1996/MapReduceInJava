@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Properties;
 
 import controlPackage.Controller;
+import workerPackage.WorkerMapper;
 
 public class WordCount {
 
@@ -34,13 +35,12 @@ public class WordCount {
 
 	public void methodMap(String key, String value, Method emit_intermediate)
 	{
-		System.out.println("Map in Controller");
-		System.out.println(emit_intermediate);
+		// System.out.println("Map in Controller");
 		value = cleanFile(value);
 		String[] words = value.split(" ");
 		for(String word: words) {
 			try {
-				emit_intermediate.invoke(word, "1");
+				emit_intermediate.invoke(_map,word, "1");
 			} catch (IllegalAccessException e) {
 				e.printStackTrace();
 			} catch (IllegalArgumentException e) {
@@ -78,4 +78,5 @@ public class WordCount {
 	}
 	
 	Controller _c;
+	WorkerMapper _map = new WorkerMapper();
 }

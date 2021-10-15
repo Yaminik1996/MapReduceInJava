@@ -19,7 +19,7 @@ public class Master {
 	public void perform(Object obj)
 	{
 		System.out.println("Calling from Master");
-		_mapperNode.perform();
+		_mapperNode.perform(obj);
 		_reducerNode.perform(obj);
 	}
 	
