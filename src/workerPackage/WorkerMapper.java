@@ -31,7 +31,6 @@ public class WorkerMapper {
 	}
 	public void emitIntermediate(String key, String value){
 		mapProp.put(key,value);
-		System.out.println(mapProp.propertyNames());
 
 	}
 	public static void printProperties(Properties prop)
@@ -64,15 +63,8 @@ public class WorkerMapper {
 					} catch (SecurityException e) {
 						e.printStackTrace();
 					}
-					System.out.println(mapProp.propertyNames());
 
 	   			}
-
-				// try(OutputStream outputStream = new FileOutputStream("intermediate.properties")){
-				// 	mapProp.store(outputStream,null);
-				// } catch (IOException e) {
-				// 	e.printStackTrace();
-				// } 
 				
 			} 
 			catch (IOException e) {
@@ -93,6 +85,6 @@ public class WorkerMapper {
 	String numMappers;
 	String numReducers;
 	String inputFile;
-	Properties mapProp = new Properties();
+	public Properties mapProp = new Properties();
 	
 }

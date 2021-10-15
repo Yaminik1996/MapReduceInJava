@@ -3,7 +3,9 @@ package tests;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;
@@ -41,6 +43,11 @@ public class WordCount {
 		for(String word: words) {
 			try {
 				emit_intermediate.invoke(_map,word, "1");
+				try(OutputStream outputStream = new FileOutputStream("intermediate.properties")){
+					_map.mapProp.store(outputStream,null);
+				} catch (IOException e) {
+					e.printStackTrace();
+				} 
 			} catch (IllegalAccessException e) {
 				e.printStackTrace();
 			} catch (IllegalArgumentException e) {
