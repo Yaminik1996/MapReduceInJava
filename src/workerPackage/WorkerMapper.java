@@ -42,12 +42,6 @@ public class WorkerMapper {
 		
 
 	}
-	public static void printProperties(Properties prop)
-    {	
-        for (Object key: prop.keySet()) {
-            System.out.println(key + ": " + prop.getProperty(key.toString()));
-        }
-    }
 	public void perform(Object obj)
 	{
 		System.out.println("Worker Mapper called");

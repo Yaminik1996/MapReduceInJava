@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class WorkerReduce {
 	public void initialize(Method customReduce)
@@ -31,18 +32,19 @@ public class WorkerReduce {
         }
     }
 
-	public static void emitFinal(String key, List<String> value){
+	// Emit Final function to store the final key value pair
+	public static void emitFinal(String key, Integer value){
 		reduceProp.put(key,value);
 
 	}
 	public void perform(Object obj)
 	{
 		System.out.println("Worker Reduce called");
-		Class[] emitFinalArgs = {String.class, List.class};
+		Class[] emitFinalArgs = {String.class, Integer.class};
 		try {
 			for (Object key: mapProp.keySet()) {
 				System.out.println(key + ": " + mapProp.getProperty(key.toString()));
-				String[] values = mapProp.getProperty(key.toString()).split(",");
+				List<String> values = Arrays.stream(mapProp.getProperty(key.toString()).split(",")).collect(Collectors.toList());
 				System.out.println(values);
 				_reduceFunction.invoke(obj, String.valueOf(key), values, this.getClass().getDeclaredMethod("emitFinal", emitFinalArgs));
 			}
@@ -62,5 +64,5 @@ public class WorkerReduce {
 	
 	Method _reduceFunction;
 	public Properties mapProp = new Properties();
-	public static Hashtable<String, List<String>> reduceProp = new Hashtable<String,List<String>>();
+	public static Hashtable<String, Integer> reduceProp = new Hashtable<String, Integer>();
 }

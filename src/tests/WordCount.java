@@ -1,15 +1,18 @@
 package tests;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Properties;
+import java.util.Map.Entry;
 
 import controlPackage.Controller;
 import workerPackage.WorkerMapper;
@@ -20,7 +23,7 @@ public class WordCount {
 	public void initialize()
 	{
 		System.out.println("Word count");
-		Properties prop = new Properties();
+		
 		String fileName = "tests/config/wordCountConfig.config";
 		_c = new Controller();
 		Class[] mapArgs = {String.class, String.class, Method.class};
@@ -69,16 +72,28 @@ public class WordCount {
 		}
 		try {
 			emit_final.invoke(_reduce, key, result);
-			try(OutputStream outputStream = new FileOutputStream("final.properties")){
-				WorkerReduce.reduceProp.store(outputStream,null);
-			} catch (IOException e) {
-				e.printStackTrace();
-			} 
+			System.out.println(WorkerReduce.reduceProp);
+
+			//Write the final results to an output file
+			File file = new File("wordcount.txt");
+			BufferedWriter bw = new BufferedWriter(new FileWriter(file));
+			for(Entry<String, Integer> entry : WorkerReduce.reduceProp.entrySet()){
+				bw.write( entry.getKey() + ":" + entry.getValue() );
+                
+                //new line
+                bw.newLine();
+			}
+			bw.flush();
+			
+
 		} catch (IllegalAccessException e) {
 			e.printStackTrace();
 		} catch (IllegalArgumentException e) {
 			e.printStackTrace();
 		} catch (InvocationTargetException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
