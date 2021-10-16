@@ -1,10 +1,19 @@
 package tests;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.security.KeyStore.Entry;
 import java.util.List;
+import java.io.FileOutputStream;
 
 import controlPackage.Controller;
+import workerPackage.WorkerMapper;
+import workerPackage.WorkerReduce;
 
 public class MovieRating {
 
@@ -34,15 +43,17 @@ public class MovieRating {
 			String movieName = parts[0];
 			Integer rating = Integer.valueOf(parts[1]);
 			try {
-				emit_intermediate.invoke(movieName, rating);
+				emit_intermediate.invoke(_map,movieName, String.valueOf(rating));
+				try(OutputStream outputStream = new FileOutputStream("intermediate.properties")){
+					_map.mapProp.store(outputStream,null);
+				} catch (IOException e) {
+					e.printStackTrace();
+				} 
 			} catch (IllegalAccessException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} catch (IllegalArgumentException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} catch (InvocationTargetException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
@@ -58,18 +69,31 @@ public class MovieRating {
 	           ++count;
 		}
 		try {
-			emit_final.invoke(key, totalRating/count);
+			emit_final.invoke(_reduce, key, totalRating/count);
+			System.out.println(WorkerReduce.reduceProp);
+
+			//Write the final results to an output file
+			File file = new File("movierating.txt");
+			BufferedWriter bw = new BufferedWriter(new FileWriter(file));
+			for(java.util.Map.Entry<String, Integer> entry : WorkerReduce.reduceProp.entrySet()){
+				bw.write( entry.getKey() + ":" + entry.getValue() );
+                
+                //new line
+                bw.newLine();
+			}
+			bw.flush();
 		} catch (IllegalAccessException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IllegalArgumentException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (InvocationTargetException e) {
-			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
 	
 	Controller _c;
+	WorkerMapper _map = new WorkerMapper();
+	WorkerReduce _reduce = new WorkerReduce();
 }

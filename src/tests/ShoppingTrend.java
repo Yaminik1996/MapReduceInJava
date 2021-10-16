@@ -42,13 +42,13 @@ public class ShoppingTrend {
 			try {
 				emit_intermediate.invoke(id, cost*quantity);
 			} catch (IllegalAccessException e) {
-				// TODO Auto-generated catch block
+				
 				e.printStackTrace();
 			} catch (IllegalArgumentException e) {
-				// TODO Auto-generated catch block
+				
 				e.printStackTrace();
 			} catch (InvocationTargetException e) {
-				// TODO Auto-generated catch block
+				
 				e.printStackTrace();
 			}
 		}
@@ -57,20 +57,17 @@ public class ShoppingTrend {
 	public void methodReduce(String key, List<String> values, Method emit_final)
 	{
 		System.out.println("Reduce in Controller");
-		Double result = 0.0;
+		Integer result = 0;
 		for(String v: values) {
-	           result += Double.valueOf(v);
+	           result += Integer.valueOf(v);
 		}
 		try {
 			emit_final.invoke(key, result);
 		} catch (IllegalAccessException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IllegalArgumentException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (InvocationTargetException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
