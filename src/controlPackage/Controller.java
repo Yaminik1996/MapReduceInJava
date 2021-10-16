@@ -22,10 +22,10 @@ public class Controller {
 	
 	public static void main(String[] args) {
 		System.out.println("From Controller-main");
-		// wordCount = new WordCount();
-		// wordCount.initialize();
-		// shoppingTrend = new ShoppingTrend();
-		// shoppingTrend.initialize();
+		wordCount = new WordCount();
+		wordCount.initialize();
+		shoppingTrend = new ShoppingTrend();
+		shoppingTrend.initialize();
 		movieRating = new MovieRating();
 		movieRating.initialize();
 	}
