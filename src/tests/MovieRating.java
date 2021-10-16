@@ -10,15 +10,14 @@ public class MovieRating {
 
 	public void initialize()
 	{
-		String fileName = "config/movieRatingConfig.conf";
-		_c = new Controller();
+		String fileName = "tests/config/movieRatingConfig.conf";
+		Class[] mapArgs = {String.class, String.class, Method.class};
+		Class[] reduceArgs = {String.class, List.class, Method.class};
 		try {
-			_c.initialize(this.getClass().getDeclaredMethod("methodMap", null), this.getClass().getDeclaredMethod("methodReduce", null), fileName);
+			_c.initialize(this.getClass().getDeclaredMethod("methodMap", mapArgs ), this.getClass().getDeclaredMethod("methodReduce", reduceArgs), fileName);
 		} catch (NoSuchMethodException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (SecurityException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		_c.perform(this);

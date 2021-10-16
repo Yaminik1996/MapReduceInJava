@@ -24,10 +24,10 @@ public class Controller {
 		System.out.println("From Controller-main");
 		wordCount = new WordCount();
 		wordCount.initialize();
-		// shoppingTrend = new ShoppingTrend();
-		// shoppingTrend.initialize();
-		// movieRating = new MovieRating();
-		// movieRating.initialize();
+		shoppingTrend = new ShoppingTrend();
+		shoppingTrend.initialize();
+		movieRating = new MovieRating();
+		movieRating.initialize();
 	}
 	
 	Master _masterNode;
