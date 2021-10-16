@@ -15,7 +15,7 @@ public class ShoppingTrend {
 
 	public void initialize()
 	{
-		String fileName = "tests/config/shoppingTrendConfig.conf";
+		String fileName = "tests/config/shoppingTrendConfig.config";
 		_c = new Controller();
 		Class[] mapArgs = {String.class, String.class, Method.class};
 		Class[] reduceArgs = {String.class, List.class, Method.class};
