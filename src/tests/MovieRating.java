@@ -11,6 +11,7 @@ public class MovieRating {
 	public void initialize()
 	{
 		String fileName = "tests/config/movieRatingConfig.conf";
+		_c = new Controller();
 		Class[] mapArgs = {String.class, String.class, Method.class};
 		Class[] reduceArgs = {String.class, List.class, Method.class};
 		try {
