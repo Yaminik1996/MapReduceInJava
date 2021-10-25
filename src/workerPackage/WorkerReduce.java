@@ -9,19 +9,12 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class WorkerReduce {
-	public void initialize(Method customReduce)
+	String configFile = "";
+	public void initialize(Method customReduce, String configFile)
 	{
 		System.out.println("reached reducer");
 		_reduceFunction = customReduce;
-		
-		String fileName = "intermediate.properties";
-		try (FileInputStream fis = new FileInputStream(fileName)) {
-			mapProp.load(fis);
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		this.configFile = configFile;
 	}
 
 	//Function to print key value pair from intermediate file
@@ -40,6 +33,22 @@ public class WorkerReduce {
 	public void perform(Object obj)
 	{
 		System.out.println("Worker Reduce called");
+		Properties prop = new Properties();
+		try (FileInputStream fis = new FileInputStream(this.configFile)) {
+			prop.load(fis);
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		String intermediateFile = prop.getProperty("intermediate");
+		try (FileInputStream fis = new FileInputStream(intermediateFile)) {
+			mapProp.load(fis);
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		Class[] emitFinalArgs = {String.class, Integer.class};
 		try {
 			for (Object key: mapProp.keySet()) {

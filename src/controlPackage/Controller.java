@@ -1,9 +1,6 @@
 package controlPackage;
 
 import java.lang.reflect.Method;
-
-import tests.MovieRating;
-import tests.ShoppingTrend;
 import tests.WordCount;
 
 public class Controller {
@@ -28,6 +25,4 @@ public class Controller {
 	
 	Master _masterNode;
 	static WordCount wordCount;
-	static ShoppingTrend shoppingTrend;
-	static MovieRating movieRating;
 }

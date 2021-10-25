@@ -24,7 +24,7 @@ public class ShoppingTrend {
 	{
 		String fileName = "tests/config/shoppingTrendConfig.config";
 		_c = new Controller();
-		Class[] mapArgs = {String.class, String.class, Method.class};
+		Class[] mapArgs = {String.class, String.class, Method.class, String.class};
 		Class[] reduceArgs = {String.class, List.class, Method.class};
 		try {
 			_c.initialize(this.getClass().getDeclaredMethod("methodMap", mapArgs ), this.getClass().getDeclaredMethod("methodReduce", reduceArgs), fileName);
@@ -37,7 +37,7 @@ public class ShoppingTrend {
 	}
 
 
-	public void methodMap(String key, String value, Method emit_intermediate)
+	public void methodMap(String key, String value, Method emit_intermediate, String intermediateFile)
 	{
 		System.out.println("Map in Controller");
 		String[] entries = value.split(";");
@@ -48,7 +48,7 @@ public class ShoppingTrend {
 			Integer quantity = Integer.valueOf(parts[2]);
 			try {
 				emit_intermediate.invoke(_map,String.valueOf(id), String.valueOf(cost*quantity));
-				try(OutputStream outputStream = new FileOutputStream("intermediate.properties")){
+				try(OutputStream outputStream = new FileOutputStream(intermediateFile)){
 					_map.mapProp.store(outputStream,null);
 				} catch (IOException e) {
 					e.printStackTrace();

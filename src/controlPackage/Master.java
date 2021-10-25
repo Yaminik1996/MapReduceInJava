@@ -13,7 +13,7 @@ public class Master {
 		_mapperNode = new WorkerMapper();
 		_mapperNode.initialize(customMap,configFile);
 		_reducerNode = new WorkerReduce();
-		_reducerNode.initialize(customReduce);
+		_reducerNode.initialize(customReduce,configFile);
 	}
 	
 	public void perform(Object obj)

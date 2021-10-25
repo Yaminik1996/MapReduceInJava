@@ -25,6 +25,7 @@ public class WorkerMapper {
 		numMappers = prop.getProperty("mappers");
 		numReducers = prop.getProperty("reducers");
 		inputFile = prop.getProperty("input");
+		intermediateFile = prop.getProperty("intermediate");
 	
 	}
 	//Emit intermediate function, which saves intermediate key value pairs to a Properties variable mapProp
@@ -60,7 +61,7 @@ public class WorkerMapper {
 			try {
 				while ((st = br.readLine()) != null){
 					try {
-						_mapFunction.invoke(obj,String.valueOf(Counter), st, this.getClass().getDeclaredMethod("emitIntermediate", emitIntermediateArgs));
+						_mapFunction.invoke(obj,String.valueOf(Counter), st, this.getClass().getDeclaredMethod("emitIntermediate", emitIntermediateArgs),intermediateFile);
 					} catch (NoSuchMethodException e) {
 						e.printStackTrace();
 					} catch (SecurityException e) {
@@ -88,6 +89,7 @@ public class WorkerMapper {
 	String numMappers;
 	String numReducers;
 	String inputFile;
+	String intermediateFile;
 	public Properties mapProp = new Properties();
 	
 }

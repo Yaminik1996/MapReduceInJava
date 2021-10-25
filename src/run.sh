@@ -8,6 +8,6 @@ javac controlPackage/Controller2.java
 
 java controlPackage.Controller2
 
-#javac controlPackage/Controller3.java
+javac controlPackage/Controller3.java
 
-#java controlPackage/Controller3
+java controlPackage/Controller3
