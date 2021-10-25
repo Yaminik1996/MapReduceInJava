@@ -6,7 +6,7 @@ import tests.MovieRating;
 import tests.ShoppingTrend;
 import tests.WordCount;
 
-public class Controller {
+public class Controller2 {
 
 	public void initialize(Method customMap, Method customReduce, String configFile)
 	{
@@ -22,8 +22,8 @@ public class Controller {
 	
 	public static void main(String[] args) {
 		System.out.println("From Controller-main");
-		wordCount = new WordCount();
-		wordCount.initialize();
+		shoppingTrend = new ShoppingTrend();
+		shoppingTrend.initialize();
 	}
 	
 	Master _masterNode;
