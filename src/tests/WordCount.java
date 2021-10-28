@@ -17,6 +17,7 @@ import java.util.Map.Entry;
 import controlPackage.Controller;
 import workerPackage.WorkerMapper;
 import workerPackage.WorkerReduce;
+import java.lang.Math;
 
 public class WordCount {
 
@@ -25,8 +26,11 @@ public class WordCount {
 		System.out.println("Word count");
 		
 		String fileName = "tests/config/wordCountConfig.config";
+		//for eclipse debugging 
+		//fileName = "src/"+fileName;
+
 		_c = new Controller();
-		Class[] mapArgs = {String.class, String.class, Method.class, String.class};
+		Class[] mapArgs = {String.class, String.class, Method.class, String.class, Integer.class, Integer.class};
 		Class[] reduceArgs = {String.class, List.class, Method.class};
 		try {
 			_c.initialize(this.getClass().getDeclaredMethod("methodMap", mapArgs ), this.getClass().getDeclaredMethod("methodReduce", reduceArgs), fileName);
@@ -39,16 +43,30 @@ public class WordCount {
 	}
 
 
-	public void methodMap(String key, String value, Method emit_intermediate,String intermediateFile)
+	public void methodMap(String key, String value, Method emit_intermediate,String intermediateFile, Integer numFilesToEmit, Integer mapperId)
 	{
-		// System.out.println("Map in Controller");
+		//System.out.println("Map in Controller");
 		value = cleanFile(value);
 		String[] words = value.split(" ");
+		
+		double numWords = words.length;
+		double numWordsPerFile = numWords/numFilesToEmit;
+		int numWordsPerPartition = (int) Math.ceil(numWordsPerFile);
+		int counter = 0;
 		for(String word: words) {
+			String dirName = System.getProperty("user.dir") + "/"+counter/numWordsPerPartition; 
+			File correspondingDir = new File(dirName);
+			if (!correspondingDir.exists()){
+				correspondingDir.mkdir();
+			}
+
+			int idToPut = mapperId;
+			String newintermediateFile = dirName +"/" + idToPut + intermediateFile;
+			
 			try {
 				emit_intermediate.invoke(_map,word, "1");
-				try(OutputStream outputStream = new FileOutputStream(intermediateFile)){
-					_map.mapProp.store(outputStream,null);
+				try(OutputStream outputStream = new FileOutputStream(newintermediateFile)){
+					_map.mapProp.store(outputStream, null);
 				} catch (IOException e) {
 					e.printStackTrace();
 				} 
@@ -59,27 +77,27 @@ public class WordCount {
 			} catch (InvocationTargetException e) {
 				e.printStackTrace();
 			}
+			counter++;
 		}
-		
 	}	
 
 	public void methodReduce(String key, List<String> values, Method emit_final)
 	{
-		System.out.println("Reduce in Controller");
+		//System.out.println("Reduce in Controller");
 		Integer result = 0;
 		for(String v: values) {
-	           result += Integer.valueOf(v);
+			result += Integer.valueOf(v);
 		}
 		try {
 			emit_final.invoke(_reduce, key, result);
-			System.out.println(WorkerReduce.reduceProp);
+			//System.out.println(WorkerReduce.reduceProp);
 
 			//Write the final results to an output file
 			File file = new File("wordcount.txt");
 			BufferedWriter bw = new BufferedWriter(new FileWriter(file));
 			for(Entry<String, Integer> entry : WorkerReduce.reduceProp.entrySet()){
 				bw.write( entry.getKey() + ":" + entry.getValue() );
-                
+
                 //new line
                 bw.newLine();
 			}

@@ -40,13 +40,34 @@ public class WorkerMapper {
 			new_value = new_value.concat(value);
 			mapProp.put(key,new_value);
 		}
-		
-
 	}
 	public void perform(Object obj)
 	{
 		System.out.println("Worker Mapper called");
 		try {
+			//System.out.println(inputFile);
+			
+			// for eclipse debugging
+			//inputFile = "src/"+inputFile;
+		
+			/*For error logging
+			 * try{
+				File myObj = new File("filename.txt");
+				myObj.createNewFile();
+				try {
+					FileWriter myWriter = new FileWriter("filename.txt");
+				    BufferedWriter bw = new BufferedWriter(myWriter);
+				    bw.write("input is "+inputFile);
+				    bw.newLine();
+				    bw.close();
+					myWriter.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}			
+			} catch (IOException e) {
+				e.printStackTrace();
+			}*/
+			
 			File file = new File(inputFile);
 			BufferedReader br = null;
 			try {
@@ -60,16 +81,15 @@ public class WorkerMapper {
 			Class[] emitIntermediateArgs  = {String.class, String.class};
 			try {
 				while ((st = br.readLine()) != null){
+					Integer numFilesToEmit = Integer.parseInt(numReducers);
 					try {
-						_mapFunction.invoke(obj,String.valueOf(Counter), st, this.getClass().getDeclaredMethod("emitIntermediate", emitIntermediateArgs),intermediateFile);
+						_mapFunction.invoke(obj,String.valueOf(Counter), st, this.getClass().getDeclaredMethod("emitIntermediate", emitIntermediateArgs),intermediateFile, numFilesToEmit, _mapperId);
 					} catch (NoSuchMethodException e) {
 						e.printStackTrace();
 					} catch (SecurityException e) {
 						e.printStackTrace();
 					}
-
-	   			}
-				
+	   			}				
 			} 
 			catch (IOException e) {
 				e.printStackTrace();
@@ -86,6 +106,7 @@ public class WorkerMapper {
 	}
 	
 	Method _mapFunction;
+	int _mapperId = 0;
 	String numMappers;
 	String numReducers;
 	String inputFile;

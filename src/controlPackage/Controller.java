@@ -19,6 +19,7 @@ public class Controller {
 	
 	public static void main(String[] args) {
 		System.out.println("From Controller-main");
+		
 		wordCount = new WordCount();
 		wordCount.initialize();
 	}

@@ -20,8 +20,11 @@ public class MovieRating {
 	public void initialize()
 	{
 		String fileName = "tests/config/movieRatingConfig.config";
+		//for eclipse debugging
+		//fileName = "src/"+fileName;
+		
 		_c = new Controller();
-		Class[] mapArgs = {String.class, String.class, Method.class ,String.class};
+		Class[] mapArgs = {String.class, String.class, Method.class, String.class, Integer.class, Integer.class};
 		Class[] reduceArgs = {String.class, List.class, Method.class};
 		try {
 			_c.initialize(this.getClass().getDeclaredMethod("methodMap", mapArgs ), this.getClass().getDeclaredMethod("methodReduce", reduceArgs), fileName);
@@ -34,17 +37,31 @@ public class MovieRating {
 	}
 
 
-	public void methodMap(String key, String value, Method emit_intermediate, String intermediateFile)
+	public void methodMap(String key, String value, Method emit_intermediate, String intermediateFile, Integer numFilesToEmit, Integer mapperId)
 	{
 		System.out.println("Map in Controller");
 		String[] movies = value.split(";");
+
+		double numWords = movies.length;
+		double numWordsPerFile = numWords/numFilesToEmit;
+		int numWordsPerPartition = (int) Math.ceil(numWordsPerFile);
+		int counter = 0;
 		for(String movie: movies) {
+			String dirName = System.getProperty("user.dir") + "/"+counter/numWordsPerPartition; 
+			File correspondingDir = new File(dirName);
+			if (!correspondingDir.exists()){
+				correspondingDir.mkdir();
+			}
+
+			int idToPut = mapperId;
+			String newintermediateFile = dirName +"/" + idToPut + intermediateFile;
+
 			String[] parts = movie.split(":");
 			String movieName = parts[0];
 			Integer rating = Integer.valueOf(parts[1]);
 			try {
 				emit_intermediate.invoke(_map,movieName, String.valueOf(rating));
-				try(OutputStream outputStream = new FileOutputStream(intermediateFile)){
+				try(OutputStream outputStream = new FileOutputStream(newintermediateFile)){
 					_map.mapProp.store(outputStream,null);
 				} catch (IOException e) {
 					e.printStackTrace();
@@ -56,6 +73,7 @@ public class MovieRating {
 			} catch (InvocationTargetException e) {
 				e.printStackTrace();
 			}
+			counter++;
 		}
 	}
 

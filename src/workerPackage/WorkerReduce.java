@@ -1,5 +1,6 @@
 package workerPackage;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -15,6 +16,7 @@ public class WorkerReduce {
 		System.out.println("reached reducer");
 		_reduceFunction = customReduce;
 		this.configFile = configFile;
+		_reducerId = 0;
 	}
 
 	//Function to print key value pair from intermediate file
@@ -28,8 +30,8 @@ public class WorkerReduce {
 	// Emit Final function to store the final key value pair
 	public static void emitFinal(String key, Integer value){
 		reduceProp.put(key,value);
-
 	}
+	
 	public void perform(Object obj)
 	{
 		System.out.println("Worker Reduce called");
@@ -41,14 +43,40 @@ public class WorkerReduce {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		
+		Properties mapProperties[] = new Properties[_numFiles];
+
+		String dirName = System.getProperty("user.dir") + "\\"+_reducerId;
 		String intermediateFile = prop.getProperty("intermediate");
-		try (FileInputStream fis = new FileInputStream(intermediateFile)) {
-			mapProp.load(fis);
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
+		
+		for (int i =0; i<_numFiles; i++)
+		{
+			String newIntermediateFileName = dirName +"\\"+ i + intermediateFile;
+			
+			//for eclipse debugging
+			//intermediateFile = "src/"+intermediateFile;
+			//System.out.println(intermediateFile);
+
+			
+			try (FileInputStream fis = new FileInputStream(newIntermediateFileName)) {
+				mapProperties[i] = new Properties();
+				mapProperties[i].load(fis);
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			mapProp.putAll(mapProperties[i]);
+			
+			File correspondingFile = new File(newIntermediateFileName);
+			correspondingFile.delete();
+			
+			if (i == _numFiles-1){
+				File correspondingDir = new File(dirName);
+				correspondingDir.delete();
+			}
 		}
+		
 		Class[] emitFinalArgs = {String.class, Integer.class};
 		try {
 			for (Object key: mapProp.keySet()) {
@@ -69,9 +97,13 @@ public class WorkerReduce {
 		} catch (SecurityException e) {
 			e.printStackTrace();
 		}
+
+		System.out.println("done");
 	}
 	
 	Method _reduceFunction;
+	int _reducerId=0;
+	int _numFiles=1;
 	public Properties mapProp = new Properties();
 	public static Hashtable<String, Integer> reduceProp = new Hashtable<String, Integer>();
 }

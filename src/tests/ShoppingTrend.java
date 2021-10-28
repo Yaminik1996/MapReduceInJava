@@ -23,8 +23,11 @@ public class ShoppingTrend {
 	public void initialize()
 	{
 		String fileName = "tests/config/shoppingTrendConfig.config";
+		//for eclipse debugging
+		//fileName = "src/"+fileName;
+		
 		_c = new Controller();
-		Class[] mapArgs = {String.class, String.class, Method.class, String.class};
+		Class[] mapArgs = {String.class, String.class, Method.class, String.class, Integer.class, Integer.class};
 		Class[] reduceArgs = {String.class, List.class, Method.class};
 		try {
 			_c.initialize(this.getClass().getDeclaredMethod("methodMap", mapArgs ), this.getClass().getDeclaredMethod("methodReduce", reduceArgs), fileName);
@@ -37,18 +40,32 @@ public class ShoppingTrend {
 	}
 
 
-	public void methodMap(String key, String value, Method emit_intermediate, String intermediateFile)
+	public void methodMap(String key, String value, Method emit_intermediate, String intermediateFile, Integer numFilesToEmit, Integer mapperId)
 	{
 		System.out.println("Map in Controller");
 		String[] entries = value.split(";");
+		
+		double numWords = entries.length;
+		double numWordsPerFile = numWords/numFilesToEmit;
+		int numWordsPerPartition = (int) Math.ceil(numWordsPerFile);
+		int counter = 0;
 		for(String entry: entries) {
+			String dirName = System.getProperty("user.dir") + "/"+counter/numWordsPerPartition; 
+			File correspondingDir = new File(dirName);
+			if (!correspondingDir.exists()){
+				correspondingDir.mkdir();
+			}
+
+			int idToPut = mapperId;
+			String newintermediateFile = dirName +"/" + idToPut + intermediateFile;
+
 			String[] parts = entry.split(",");
 			Integer id = Integer.valueOf(parts[0]);
 			Integer cost = (int) Math.round(Double.valueOf(parts[1]));
 			Integer quantity = Integer.valueOf(parts[2]);
 			try {
 				emit_intermediate.invoke(_map,String.valueOf(id), String.valueOf(cost*quantity));
-				try(OutputStream outputStream = new FileOutputStream(intermediateFile)){
+				try(OutputStream outputStream = new FileOutputStream(newintermediateFile)){
 					_map.mapProp.store(outputStream,null);
 				} catch (IOException e) {
 					e.printStackTrace();
@@ -63,6 +80,7 @@ public class ShoppingTrend {
 				
 				e.printStackTrace();
 			}
+			counter++;
 		}
 	}
 
@@ -80,7 +98,6 @@ public class ShoppingTrend {
 			BufferedWriter bw = new BufferedWriter(new FileWriter(file));
 			for(java.util.Map.Entry<String, Integer> entry : WorkerReduce.reduceProp.entrySet()){
 				bw.write( entry.getKey() + ":" + entry.getValue() );
-                
                 //new line
                 bw.newLine();
 			}
