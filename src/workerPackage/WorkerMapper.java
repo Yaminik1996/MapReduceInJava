@@ -1,16 +1,25 @@
 package workerPackage;
 
 import java.lang.reflect.InvocationTargetException;
+import utilsPackage.GenericStreamObjectWrapper;
 import java.lang.reflect.Method;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.net.SocketException;
 import java.util.*;
+
+import tests.WordCount;
+
 import java.io.*;
+import utilsPackage.TestClass;
 
 //This is our Mapper Class
 public class WorkerMapper {
-	public void initialize(Method customMap, String configFile)
+	
+	public void initialize(String configFile, Object objRef, int numFilesToEmit)
 	{
 		System.out.println("reached mapper");
-		_mapFunction = customMap;
+		//_mapFunction = customMap;
 		System.out.println(configFile);
 
 		Properties prop = new Properties();
@@ -22,11 +31,13 @@ public class WorkerMapper {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		numMappers = prop.getProperty("mappers");
-		numReducers = prop.getProperty("reducers");
+		//numMappers = prop.getProperty("mappers");
+		//numReducers = prop.getProperty("reducers");
 		inputFile = prop.getProperty("input");
 		intermediateFile = prop.getProperty("intermediate");
-	
+		//_startByteToRead = start;
+		//_endByteToRead = end;
+		_numFilesToEmit = numFilesToEmit;
 	}
 	//Emit intermediate function, which saves intermediate key value pairs to a Properties variable mapProp
 	public void emitIntermediate(String key, String value){
@@ -41,7 +52,7 @@ public class WorkerMapper {
 			mapProp.put(key,new_value);
 		}
 	}
-	public void perform(Object obj)
+	public void perform()
 	{
 		System.out.println("Worker Mapper called");
 		try {
@@ -81,15 +92,14 @@ public class WorkerMapper {
 			Class[] emitIntermediateArgs  = {String.class, String.class};
 			try {
 				while ((st = br.readLine()) != null){
-					Integer numFilesToEmit = Integer.parseInt(numReducers);
 					try {
-						_mapFunction.invoke(obj,String.valueOf(Counter), st, this.getClass().getDeclaredMethod("emitIntermediate", emitIntermediateArgs),intermediateFile, numFilesToEmit, _mapperId);
+						WorkerMapper._mapFunction.invoke(_callerObject, String.valueOf(Counter), st, this.getClass().getDeclaredMethod("emitIntermediate", emitIntermediateArgs),intermediateFile, _numFilesToEmit, _mapperId, this);
 					} catch (NoSuchMethodException e) {
 						e.printStackTrace();
 					} catch (SecurityException e) {
 						e.printStackTrace();
 					}
-	   			}				
+	   			}		
 			} 
 			catch (IOException e) {
 				e.printStackTrace();
@@ -105,12 +115,71 @@ public class WorkerMapper {
 		}
 	}
 	
-	Method _mapFunction;
-	int _mapperId = 0;
+	public static void main(String[] args) {
+		System.out.println("From Mapper-main"+args.length);
+		boolean isConnected = false;
+		_mapperId = Integer.parseInt(args[0]);
+		int choice = Integer.parseInt(args[3]);
+		
+		while (!isConnected) {
+			
+			int port = 4459+_mapperId;
+			System.out.println("In loop to wait for "+port);
+			try {
+				ServerSocket serverSocket = new ServerSocket(port);
+				Socket socket = serverSocket.accept();
+				System.out.println("Connected");
+				isConnected = true;
+				ObjectInputStream inStream = new ObjectInputStream(socket.getInputStream());
+
+				_callerObject = (Object) inStream.readObject();
+				
+				Class[] mapArgs = {String.class, String.class, Method.class, String.class, Integer.class, Integer.class, WorkerMapper.class};
+				try {
+					_mapFunction = (Method) _callerObject.getClass().getDeclaredMethod("map", mapArgs);
+					_mapFunction.setAccessible(true);
+				} catch (NoSuchMethodException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (SecurityException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				//message.boom();
+				System.out.println("Object received");
+				socket.close();
+				serverSocket.close();
+
+			} 
+			catch (SocketException se) {
+				System.out.println("Exception1");
+				se.printStackTrace();
+				System.exit(0);
+			} catch (IOException e) {
+				System.out.println("Exception2");
+				e.printStackTrace();
+			} catch (ClassNotFoundException cn) {
+				System.out.println("Exception3");
+				cn.printStackTrace();
+			}
+		}
+		int numFilesToEmit = Integer.parseInt(args[2]);
+		String fileName = args[1];
+		WorkerMapper wm1 = new WorkerMapper();
+		wm1.initialize(fileName, _callerObject, numFilesToEmit);
+		wm1.perform();
+	}
+	
+	public static int check;
+	static Method _mapFunction;
+	static int _mapperId;
+	int _startByteToRead, _endByteToRead;
+	int _numFilesToEmit;
 	String numMappers;
 	String numReducers;
 	String inputFile;
 	String intermediateFile;
+	static Object _callerObject;
 	public Properties mapProp = new Properties();
 	
 }

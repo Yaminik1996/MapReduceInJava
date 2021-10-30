@@ -5,21 +5,21 @@ import tests.WordCount;
 
 public class Controller {
 
-	public void initialize(Method customMap, Method customReduce, String configFile)
+	public void initialize(Method customMap, Method customReduce, String configFile, Object objRef)
 	{
 		System.out.println(configFile);
 		_masterNode = new Master();
-		_masterNode.initialize(customMap, customReduce, configFile);
+		_masterNode.initialize(customMap, customReduce, configFile, objRef);
 	}
 	
-	public void perform(Object obj)
+	public void perform(Object mappingObj, Object reducerObject)
 	{
-		_masterNode.perform(obj);		
+		_masterNode.perform(mappingObj, reducerObject, 1);		
 	}
 	
 	public static void main(String[] args) {
 		System.out.println("From Controller-main");
-		
+
 		wordCount = new WordCount();
 		wordCount.initialize();
 	}
