@@ -52,13 +52,14 @@ public class WorkerReduce {
 		
 		Properties mapProperties[] = new Properties[_numFilesToRead];
 
-		String dirName = System.getProperty("user.dir") + "\\"+_reducerId;
+		String dirName = System.getProperty("user.dir") + "/"+_reducerId;
+		
 		String intermediateFile = prop.getProperty("intermediate");
 		
 		for (int i =0; i<_numFilesToRead; i++)
 		{
-			String newIntermediateFileName = dirName +"\\"+ i + intermediateFile;
-			
+			String newIntermediateFileName = dirName +"/"+ i + intermediateFile;
+			System.out.println(newIntermediateFileName);	
 			//for eclipse debugging
 			//intermediateFile = "src/"+intermediateFile;
 			//System.out.println(intermediateFile);

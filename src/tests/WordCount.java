@@ -55,7 +55,8 @@ class Mapper implements IMapper {
 
 			int idToPut = mapperId;
 			String newintermediateFile = dirName + "/" + idToPut + intermediateFile;
-
+			System.out.println(newintermediateFile);
+			System.out.println(word);
 			try {
 				emit_intermediate.invoke(mapperObject, word, "1");
 				try (OutputStream outputStream = new FileOutputStream(newintermediateFile)) {
