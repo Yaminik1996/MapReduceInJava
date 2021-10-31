@@ -161,7 +161,7 @@ public class WorkerReduce {
 		WorkerReduce wr1 = new WorkerReduce();
 		wr1.initialize(fileName, _callerObject, numFilesToRead);
 		wr1.perform();
-
+		return;
 	}
 	
 	static Method _reduceFunction;

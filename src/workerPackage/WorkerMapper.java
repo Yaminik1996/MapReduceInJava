@@ -168,6 +168,7 @@ public class WorkerMapper {
 		WorkerMapper wm1 = new WorkerMapper();
 		wm1.initialize(fileName, _callerObject, numFilesToEmit);
 		wm1.perform();
+		return;
 	}
 	
 	public static int check;
